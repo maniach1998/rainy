@@ -7,18 +7,9 @@ import {
 } from '@react-google-maps/api';
 import { formatRelative } from 'date-fns';
 
-import usePlacesAutocomplete, {
-	getGeocode,
-	getLatLng,
-} from 'use-places-autocomplete';
-import {
-	Combobox,
-	ComboboxInput,
-	ComboboxPopover,
-	ComboboxList,
-	ComboboxOption,
-} from '@reach/combobox';
-import '@reach/combobox/styles.css';
+import Search from './components/Search';
+import Locate from './components/Locate';
+import Header from './components/Header';
 
 import mapStyles from './mapStyles';
 
@@ -74,19 +65,13 @@ export default function App() {
 
 	return (
 		<div>
-			<h1>
-				Rainy{' '}
-				<span role='img' aria-label='rain'>
-					🌧
-				</span>
-			</h1>
-
+			<Header />
 			<Search panTo={panTo} />
 			<Locate panTo={panTo} />
 
 			<GoogleMap
 				mapContainerStyle={mapContainerStyle}
-				zoom={8}
+				zoom={10}
 				center={center}
 				options={options}
 				onClick={onMapClick}
@@ -123,78 +108,6 @@ export default function App() {
 					</InfoWindow>
 				) : null}
 			</GoogleMap>
-		</div>
-	);
-}
-
-function Locate({ panTo }: any) {
-	return (
-		<button
-			className='locate'
-			onClick={() => {
-				navigator.geolocation.getCurrentPosition(
-					(position) => {
-						panTo({
-							lat: position.coords.latitude,
-							lng: position.coords.longitude,
-						});
-					},
-					(error) => {
-						console.log(error);
-					}
-				);
-			}}>
-			<img src='compass.svg' alt='Compass - locate me' />
-		</button>
-	);
-}
-
-function Search({ panTo }: any) {
-	const {
-		ready,
-		value,
-		suggestions: { status, data },
-		setValue,
-		clearSuggestions,
-	} = usePlacesAutocomplete({
-		requestOptions: {
-			location: new google.maps.LatLng(19.07609, 72.877426),
-			radius: 200 * 1000,
-		},
-	});
-
-	return (
-		<div className='search'>
-			<Combobox
-				onSelect={async (address) => {
-					setValue(address, false);
-					clearSuggestions();
-
-					try {
-						const result = await getGeocode({ address });
-						const { lat, lng } = await getLatLng(result[0]);
-						panTo({ lat, lng });
-					} catch (error) {
-						console.log(error);
-					}
-				}}>
-				<ComboboxInput
-					value={value}
-					onChange={(e: React.FormEvent<HTMLInputElement>) => {
-						setValue(e.currentTarget.value);
-					}}
-					disabled={!ready}
-					placeholder='Enter an address'
-				/>
-				<ComboboxPopover>
-					<ComboboxList>
-						{status === 'OK' &&
-							data.map(({ id, description }) => (
-								<ComboboxOption key={id} value={description} />
-							))}
-					</ComboboxList>
-				</ComboboxPopover>
-			</Combobox>
 		</div>
 	);
 }

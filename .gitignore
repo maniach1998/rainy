@@ -9,10 +9,13 @@
 /coverage
 
 # production
+.next
+.vercel
 /build
 
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
